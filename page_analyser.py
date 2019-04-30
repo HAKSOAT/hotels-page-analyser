@@ -8,7 +8,7 @@ class PageAnalyser():
 		self.parsed_page_content = None
 		self.anchor_tags = None
 		self.href_values = []
-		self.anchor_text = []
+		self.anchor_texts = []
 
 	def download_page(self):
 		try:
@@ -44,4 +44,8 @@ class PageAnalyser():
 			print("Error: There are no anchor tags")
 		else:
 			for anchor_tag in self.anchor_tags:
-				self.anchor_text.append(anchor_tag.text.strip())
+				self.anchor_texts.append(anchor_tag.text.strip())
+
+	def print_links_and_texts(self):
+		for link, text in zip(self.href_values, self.anchor_texts):
+			print("link: {}\t text: {}\n".format(link, text))
