@@ -6,6 +6,7 @@ class PageAnalyser():
 		self.url = url
 		self.page_content = None
 		self.parsed_page_content = None
+		self.anchor_tags = None
 
 	def download_page(self):
 		page_object = requests.get(self.url)
@@ -14,4 +15,5 @@ class PageAnalyser():
 	def parse_page(self):
 		self.parsed_page_content = bs(self.page_content, "html.parser")
 
-		
+	def get_anchor_tags(self):
+		self.anchor_tags = self.parsed_page_content.find_all("a")
