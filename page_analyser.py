@@ -8,6 +8,7 @@ class PageAnalyser():
 		self.parsed_page_content = None
 		self.anchor_tags = []
 		self.href_values = []
+		self.anchor_text = []
 
 	def download_page(self):
 		page_object = requests.get(self.url)
@@ -22,3 +23,7 @@ class PageAnalyser():
 	def get_href_values(self):
 		for anchor_tag in self.anchor_tags:
 			self.href_values.append(anchor_tag["href"])
+
+	def get_anchor_text(self):
+		for anchor_tag in self.anchor_tags:
+			self.anchor_text.append(anchor_tag.text.strip())
