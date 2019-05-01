@@ -9,6 +9,6 @@ pip install -r requirements.txt
 Start app 
 
 ```
-python page_analyser.py "http://nupenmanor.com/"
+python page_analyser.py -l "http://nupenmanor.com/"
 
 ```
