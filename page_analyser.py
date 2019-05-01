@@ -1,3 +1,4 @@
+import argparse
 from bs4 import BeautifulSoup as bs
 from newspaper import Article
 import numpy
@@ -105,3 +106,17 @@ class PageAnalyser():
 						bag_vector[index] += 1
 			self.BoW.append((text, numpy.array(bag_vector)))
 		return self.BoW
+  
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument("link", help='add a url to test', type=str)
+	args = parser.parse_args()
+	pageanalyser = PageAnalyser(args.link)
+	pageanalyser.download_page()
+	pageanalyser.parse_page()
+	pageanalyser.find_anchor_tags()
+	pageanalyser.find_href_values()
+	pageanalyser.find_anchor_texts()
+	
+if __name__ == '__main__':
+  main()
