@@ -74,9 +74,17 @@ class PageAnalyser():
 			for h_tag in self.h_tags:
 				self.h_tag_texts.append(h_tag.text.strip())
 
-	def clean_text(self, sentence):
+	def clean_text(self, text):
 		ignore = ['a', "the", "is"]
-		words = re.sub("[^\w]", " ",  sentence).split()
+		words = re.sub("[^\w]", " ",  text).split()
 		cleaned_text = [w.lower() for w in words if w not in ignore]
 		return cleaned_text
+
+	def tokenize(self, sentence):
+		words = []
+		for sentence in sentences:
+		    w = self.clean_text(sentence)
+		    words.extend(w)	    
+		words = sorted(list(set(words)))
+		return words
 
