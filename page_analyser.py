@@ -21,7 +21,7 @@ class PageAnalyser():
 		try:
 			headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
 			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-			if "https://" not in self.url:
+			if "https://" not in self.url or "http://" not in self.url:
 				page_object = requests.get("https://{}".format(self.url), headers=headers)
 			else:
 				page_object = requests.get(self.url, headers=headers)
@@ -88,8 +88,8 @@ class PageAnalyser():
 	def tokenize(self, texts):
 		words = []
 		for text in texts:
-		    w = self.clean_text(text)
-		    words.extend(w)   
+		    cleaned_text = self.clean_text(text)
+		    words.extend(cleaned_text)   
 		words = sorted(list(set(words)))
 		return words
 
