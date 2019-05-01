@@ -9,6 +9,8 @@ class PageAnalyser():
 		self.anchor_tags = None
 		self.href_values = []
 		self.anchor_texts = []
+		self.h_tags = None
+		self.h_tag_texts = []
 
 	def download_page(self):
 		try:
@@ -56,3 +58,11 @@ class PageAnalyser():
 	def get_links_and_texts(self):
 		links_and_texts = list(zip(self.href_values, self.anchor_texts))
 		return links_and_texts
+
+	def find_h_tags(self):
+		if self.parsed_page_content is None:
+			print("Error: Page content has not been parsed")
+		else:
+			self.h_tags = self.parsed_page_content.find_all("h1")
+			self.h_tags += self.parsed_page_content.find_all("h2")
+			self.h_tags += self.parsed_page_content.find_all("h3")
