@@ -11,6 +11,7 @@ class PageAnalyser():
 		self.anchor_texts = []
 		self.h_tags = None
 		self.h_tag_texts = []
+		self.BoW = 
 
 	def download_page(self):
 		try:
@@ -74,13 +75,13 @@ class PageAnalyser():
 			for h_tag in self.h_tags:
 				self.h_tag_texts.append(h_tag.text.strip())
 
-	def clean_text(self, sentence):
-		ignore = ['a', "the", "is"]
+	def clean_text(self, text):
+		ignored_words = ['a', "the", "is"]
 		words = re.sub("[^\w]", " ",  sentence).split()
-		cleaned_text = [w.lower() for w in words if w not in ignore]
+		cleaned_text = [word.lower() for word in words if word not in ignored_words]
 		return cleaned_text
 
-	def tokenize(sentences):
+	def tokenize(self, sentences):
 		words = []
 		for sentence in sentences:
 		    w = self.clean_text(sentence)
