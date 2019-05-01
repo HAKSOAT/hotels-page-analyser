@@ -12,13 +12,15 @@ class PageAnalyser():
 
 	def download_page(self):
 		try:
+			headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
+			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 			if "https://" not in self.url:
-				page_object = requests.get("https://{}".format(self.url))
+				page_object = requests.get("https://{}".format(self.url), headers=headers)
 			else:
-				page_object = requests.get(self.url)
+				page_object = requests.get(self.url, headers=headers)
+			self.page_content = page_object.content
 		except requests.exceptions.ConnectionError:
 			print("Error: Something is wrong with the url")
-		self.page_content = page_object.content
 
 	def parse_page(self):
 		if self.page_content is None:
