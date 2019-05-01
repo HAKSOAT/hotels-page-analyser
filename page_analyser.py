@@ -20,12 +20,15 @@ class PageAnalyser():
 
 	def download_page(self):
 		try:
+			# Some sites do not allow requests without headers
+			# The headers dictionary deals with this
 			headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
 			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-			if "https://" not in self.url or "http://" not in self.url:
-				page_object = requests.get("https://{}".format(self.url), headers=headers)
-			else:
+			# requests.get only works with urls with http or https
+			if re.match(r"(https://|http://).+", self.url):
 				page_object = requests.get(self.url, headers=headers)
+			else:
+				page_object = requests.get("https://{}".format(self.url), headers=headers)
 			self.page_content = page_object.content
 		except requests.exceptions.ConnectionError:
 			print("Error: Something is wrong with the url")
@@ -109,7 +112,7 @@ class PageAnalyser():
   
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("link", help='add a url to test', type=str)
+	parser.add_argument("-l", "--link", help='add a url to test', type=str)
 	args = parser.parse_args()
 	pageanalyser = PageAnalyser(args.link)
 	pageanalyser.download_page()
@@ -119,4 +122,4 @@ def main():
 	pageanalyser.find_anchor_texts()
 	
 if __name__ == '__main__':
-  main()
+	main()
