@@ -1,5 +1,9 @@
-import requests
 from bs4 import BeautifulSoup as bs
+from newspaper import Article
+import numpy
+import re
+import requests
+
 
 class PageAnalyser():
 	def __init__(self, url):
@@ -11,7 +15,7 @@ class PageAnalyser():
 		self.anchor_texts = []
 		self.h_tags = None
 		self.h_tag_texts = []
-		self.BoW = 
+		self.BoW = []
 
 	def download_page(self):
 		try:
@@ -77,14 +81,27 @@ class PageAnalyser():
 
 	def clean_text(self, text):
 		ignored_words = ['a', "the", "is"]
-		words = re.sub("[^\w]", " ",  sentence).split()
+		words = re.sub("[^\w]", " ",  text).split()
 		cleaned_text = [word.lower() for word in words if word not in ignored_words]
 		return cleaned_text
 
-	def tokenize(self, sentences):
+	def tokenize(self, texts):
 		words = []
-		for sentence in sentences:
-		    w = self.clean_text(sentence)
+		for text in texts:
+		    w = self.clean_text(text)
 		    words.extend(w)   
 		words = sorted(list(set(words)))
 		return words
+
+	def get_BoW(self):
+		texts = self.h_tag_texts
+		vocab = self.tokenize(self.h_tag_texts)
+		for text in texts:
+			cleaned_texts = self.clean_text(text)
+			bag_vector = numpy.zeros(len(vocab))
+			for cleaned_text in cleaned_texts:
+				for index, word in enumerate(vocab):
+					if word == cleaned_text: 
+						bag_vector[index] += 1
+			self.BoW.append((text, numpy.array(bag_vector)))
+		return self.BoW
