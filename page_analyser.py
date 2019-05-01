@@ -39,7 +39,12 @@ class PageAnalyser():
 			print("Error: There are no anchor tags")
 		else:
 			for anchor_tag in self.anchor_tags:
-				self.href_values.append(anchor_tag["href"])
+				# Some anchor tags do not have href attributes
+				# Use an empty string as the href value of such tags
+				try:
+					self.href_values.append(anchor_tag["href"])
+				except KeyError:
+					self.href_values.append("")
 
 	def find_anchor_texts(self):
 		if self.anchor_tags is None:
