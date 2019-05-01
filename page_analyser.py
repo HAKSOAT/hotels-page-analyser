@@ -66,3 +66,10 @@ class PageAnalyser():
 			self.h_tags = self.parsed_page_content.find_all("h1")
 			self.h_tags += self.parsed_page_content.find_all("h2")
 			self.h_tags += self.parsed_page_content.find_all("h3")
+
+	def find_h_tag_texts(self):
+		if self.h_tags is None:
+			print("Error: There are no h tags")
+		else:
+			for h_tag in self.h_tags:
+				self.h_tag_texts.append(h_tag.text.strip())
