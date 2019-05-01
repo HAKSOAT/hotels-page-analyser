@@ -46,6 +46,6 @@ class PageAnalyser():
 			for anchor_tag in self.anchor_tags:
 				self.anchor_texts.append(anchor_tag.text.strip())
 
-	def print_links_and_texts(self):
-		for link, text in zip(self.href_values, self.anchor_texts):
-			print("link: {}\t text: {}\n".format(link, text))
+	def get_links_and_texts(self):
+		links_and_texts = list(zip(self.href_values, self.anchor_texts))
+		return links_and_texts
