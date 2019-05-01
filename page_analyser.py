@@ -80,3 +80,10 @@ class PageAnalyser():
 		cleaned_text = [w.lower() for w in words if w not in ignore]
 		return cleaned_text
 
+	def tokenize(sentences):
+		words = []
+		for sentence in sentences:
+		    w = self.clean_text(sentence)
+		    words.extend(w)   
+		words = sorted(list(set(words)))
+		return words
