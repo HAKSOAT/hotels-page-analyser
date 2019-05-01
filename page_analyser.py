@@ -1,3 +1,4 @@
+import argparse
 import requests
 from bs4 import BeautifulSoup as bs
 
@@ -12,8 +13,8 @@ class PageAnalyser():
 
 	def download_page(self):
 		try:
-			if "https://" not in self.url:
-				page_object = requests.get("https://{}".format(self.url))
+			if "http://" not in self.url:
+				page_object = requests.get("http://{}".format(self.url))
 			else:
 				page_object = requests.get(self.url)
 		except requests.exceptions.ConnectionError:
@@ -49,3 +50,20 @@ class PageAnalyser():
 	def print_links_and_texts(self):
 		for link, text in zip(self.href_values, self.anchor_texts):
 			print("link: {}\t text: {}\n".format(link, text))
+			
+			
+			
+def main():
+	parser = argparse.ArgumentParser()
+	parser.add_argument("link", help='add a url to test', type=str)
+	args = parser.parse_args()
+	pageanalyser = PageAnalyser(args.link)
+	pageanalyser.download_page()
+	pageanalyser.parse_page()
+	pageanalyser.find_anchor_tags()
+	pageanalyser.find_href_values()
+	pageanalyser.find_anchor_texts()
+	pageanalyser.print_links_and_texts()
+	
+if __name__ == '__main__':
+	main()
