@@ -16,7 +16,7 @@ class PageAnalyser():
 		self.anchor_texts = []
 		self.h_tags = None
 		self.h_tag_texts = []
-		self.BoW = []
+		self.bag_of_words = []
 
 	def download_page(self):
 		try:
@@ -97,7 +97,7 @@ class PageAnalyser():
 		words = sorted(list(set(words)))
 		return words
 
-	def get_BoW(self):
+	def get_bag_of_words(self):
 		texts = self.h_tag_texts
 		vocab = self.tokenize(self.h_tag_texts)
 		for text in texts:
@@ -107,8 +107,8 @@ class PageAnalyser():
 				for index, word in enumerate(vocab):
 					if word == cleaned_text: 
 						bag_vector[index] += 1
-			self.BoW.append((text, numpy.array(bag_vector)))
-		return self.BoW
+			self.bag_of_words.append((text, numpy.array(bag_vector)))
+		return self.bag_of_words
   
 def main():
 	parser = argparse.ArgumentParser()
@@ -120,6 +120,9 @@ def main():
 	pageanalyser.find_anchor_tags()
 	pageanalyser.find_href_values()
 	pageanalyser.find_anchor_texts()
+	pageanalyser.find_h_tags()
+	pageanalyser.find_h_tag_texts()
+	pageanalyser.find_bag_of_words
 	
 if __name__ == '__main__':
 	main()
