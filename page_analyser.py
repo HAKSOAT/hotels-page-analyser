@@ -1,6 +1,6 @@
 import argparse
 from bs4 import BeautifulSoup as bs
-from newspaper import Article
+import newspaper
 import numpy
 import re
 import requests
@@ -16,6 +16,7 @@ class PageAnalyser():
 			self.url = url
 		else:
 			self.url = "http://{}".format(url)
+		self.data_structure = []
 
 	def get_page_content(self, url=None):
 		if url is None:
@@ -69,23 +70,50 @@ class PageAnalyser():
 		return link_text_mapping
 
 	def get_meta_data(self, link_text_mapping):
+		meta_data = []
 		for link, anchor_text in link_text_mapping.items():
 			# requests.get only works with urls with http or https
 			# so the url needs to have http or https in it
 			if not re.match(r"(https://|http://).+", link):
 				link = "http://{}".format(link)
-			article = Article(link)
-			article.download()
-			content = article.html
-			article.parse()
-			article.nlp()
-			keywords = article.keywords
-			summary = article.summary
-			data = self.get_page_content(link)
-			h1=[i.get_text() for i  in data.find_all("h1")]
-			return(link,anchor_text, h1, summary, keywords)
+			try:
+				article = newspaper.Article(link)
+				article.download()
+				content = article.html
+				article.parse()
+				article.nlp()
+				keywords = article.keywords
+				summary = article.summary
+				data = self.get_page_content(link)
+				h1=[i.get_text() for i  in data.find_all("h1")]
+				short_url = link.split("/")[-1]
+				meta_data.append((link, h1, keywords, short_url, anchor_text, summary))
+			except newspaper.article.ArticleException:
+				pass
+		return meta_data
 
-	def get_data_structure
+	def get_data_structure(self, meta_data):
+		domain_name = urlparse(self.url).netloc
+		data_structure = {domain_name:{}}
+		for page_data in meta_data:
+			url = page_data[0]
+			h1 = page_data[1]
+			keywords = page_data[2]
+			short_url = page_data[3] if len(page_data[3]) > 0 else "home"
+			anchor_tags = page_data[4]
+			summary = page_data[5]
+			page_structure = {
+			"url": url,
+			"h1": h1,
+			"keywords": keywords,
+			"short_url": short_url,
+			"anchor_tags": anchor_tags,
+			"summary": summary
+			}
+			data_structure[domain_name].setdefault(short_url,[]).append(page_structure)
+		self.data_structure.append(data_structure)
+		return data_structure
+
 
 def main():
 	parser = argparse.ArgumentParser()
@@ -96,6 +124,8 @@ def main():
 	links_and_anchor_texts = pageanalyser.get_all_links_and_anchor_texts(page_content)
 	internal_links_and_anchor_texts = pageanalyser.get_internal_links_and_anchor_texts(links_and_anchor_texts)
 	meta_data = pageanalyser.get_meta_data(internal_links_and_anchor_texts)
+	data_structure = pageanalyser.get_data_structure(meta_data)
+	print(data_structure)
 	
 if __name__ == '__main__':
 	main()
