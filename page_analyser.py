@@ -68,7 +68,22 @@ class PageAnalyser():
 				pass
 		return link_text_mapping
 
-  
+	def get_meta_data(self, links_text_mapping):
+
+
+		for key,value in links_text_mapping.items():
+   		 	url=urlparse(key)
+   			article = Article(key)
+   		 	article.download()
+   		 	content = article.html
+    	 	article.parse()
+  		 	article.nlp()
+    		keywords = article.keywords
+	    	summary = article.summary
+
+    	 	data= bs(url, 'html.parser')
+    		h1=[i.get_text() for i  in data.find_all("h1")]
+          	return(key,value, h1, summary, keywords)
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-l", "--link", help='add a url to test', type=str)
