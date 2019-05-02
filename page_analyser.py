@@ -48,7 +48,7 @@ class PageAnalyser():
 		self.links_and_anchor_texts = list(zip(links, anchor_text))
 		#return links_and_anchor_texts
 
-	def one_level_url(self,link):
+	def get_url_one_level_down(self,link):
 		scheme=urlsplit(link).scheme
 		netloc= urlsplit(link).netloc
 		if((scheme =='')| (netloc=='')):
@@ -68,7 +68,7 @@ class PageAnalyser():
 			for link in All_links:
 				link_netloc=urlparse(link[0]).netloc
 				if (link_netloc == includeurl)| (link_netloc in self.include_url):
-					new_link=self.one_level_url(link[0])
+					new_link=self.get_url_one_level_down(link[0])
 					self.internal_links.append((new_link,link[1]))
 				else:
 					pass
