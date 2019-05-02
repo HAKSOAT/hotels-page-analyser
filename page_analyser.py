@@ -65,7 +65,6 @@ class PageAnalyser():
 			link_domain_name = urlparse(link).netloc
 			if (link_domain_name == domain_name):
 				link_one_level_deep = self.get_link_one_level_down(link)
-				print(link_one_level_deep)
 				link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
 		return link_text_mapping
 
@@ -85,6 +84,8 @@ class PageAnalyser():
 			data = self.get_page_content(link)
 			h1=[i.get_text() for i  in data.find_all("h1")]
 			return(link,anchor_text, h1, summary, keywords)
+
+	def get_data_structure
 
 def main():
 	parser = argparse.ArgumentParser()
