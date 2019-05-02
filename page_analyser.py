@@ -1,6 +1,7 @@
 import argparse
 from bs4 import BeautifulSoup as bs
 from newspaper import Article
+from enum import Enum
 import numpy
 import re
 import requests
@@ -20,22 +21,19 @@ class PageAnalyser():
 
 	def download_page(self):
 		try:
-<<<<<<< HEAD
 			if "http://" not in self.url:
 				page_object = requests.get("http://{}".format(self.url))
-			headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
+				headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
 			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 			if "https://" not in self.url:
 				page_object = requests.get("https://{}".format(self.url), headers=headers)
 			else:
-=======
 			# Some sites do not allow requests without headers
 			# The headers dictionary deals with this
-			headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
+				headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
 			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
 			# requests.get only works with urls with http or https
 			if re.match(r"(https://|http://).+", self.url):
->>>>>>> 6807b7195cb885366196faf525bc6a19f4036e87
 				page_object = requests.get(self.url, headers=headers)
 			else:
 				page_object = requests.get("https://{}".format(self.url), headers=headers)
@@ -74,15 +72,11 @@ class PageAnalyser():
 			for anchor_tag in self.anchor_tags:
 				self.anchor_texts.append(anchor_tag.text.strip())
 
-<<<<<<< HEAD
-<<<<<<< HEAD
 	def print_links_and_texts(self):
 		for link, text in zip(self.href_values, self.anchor_texts):
 			print("link: {}\t text: {}\n".format(link, text))
 			
 			
-			
-=======
 	def get_links_and_texts(self):
 		links_and_texts = list(zip(self.href_values, self.anchor_texts))
 		return links_and_texts
@@ -128,8 +122,12 @@ class PageAnalyser():
 						bag_vector[index] += 1
 			self.bag_of_words.append((text, numpy.array(bag_vector)))
 		return self.bag_of_words
-  
->>>>>>> 6807b7195cb885366196faf525bc6a19f4036e87
+	
+	def enum(**enums):
+		return type('Enum', (), enums)
+		
+	Pages = enum(HOME = 'HOME', ACCOMODATION = 'ACCOMODATION', GALLERY = 'GALLERY', ABOUT = 'ABOUT', CONTACT = 'CONTACT US', BOOK = 'BOOK NOW')
+
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-l", "--link", help='add a url to test', type=str)
@@ -143,15 +141,10 @@ def main():
 	pageanalyser.find_h_tags()
 	pageanalyser.find_h_tag_texts()
 	print(pageanalyser.get_bag_of_words())
+	print(pageanalyser.Pages.ABOUT.value)
 	
 if __name__ == '__main__':
-<<<<<<< HEAD
 	main()
-=======
-	def get_links_and_texts(self):
-		links_and_texts = list(zip(self.href_values, self.anchor_texts))
-		return links_and_texts
->>>>>>> 6b24229cd321ccd97772863fa449e3e47614c575
-=======
-	main()
->>>>>>> 6807b7195cb885366196faf525bc6a19f4036e87
+	#def get_links_and_texts(self):
+	#	links_and_texts = list(zip(self.href_values, self.anchor_texts))
+	#	return links_and_texts
