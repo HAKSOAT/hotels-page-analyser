@@ -2,3 +2,4 @@ beautifulsoup4==4.6.3
 newspaper3k==0.2.8
 numpy==1.13.3
 requests==2.20.0
+enum34
