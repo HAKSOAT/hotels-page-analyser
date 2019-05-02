@@ -122,7 +122,8 @@ def main():
 	pageanalyser.find_anchor_texts()
 	pageanalyser.find_h_tags()
 	pageanalyser.find_h_tag_texts()
-	pageanalyser.find_bag_of_words
+	pageanalyser.get_bag_of_words()
+	print(pageanalyser.get_bag_of_words())
 	
 if __name__ == '__main__':
 	main()
