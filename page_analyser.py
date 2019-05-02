@@ -1,33 +1,21 @@
 import argparse
 from bs4 import BeautifulSoup as bs
-from newspaper import Article
 import numpy
 import re
 import requests
 import pandas as pd
 from urllib.parse import urlparse
+from urllib.parse import urlsplit
 
 
 class PageAnalyser():
 	def __init__(self, url):
 		self.url = url
-<<<<<<< HEAD
-		self.page_content = None
-		self.parsed_page_content = None
-		self.anchor_tags = None
-		self.href_values = []
-		self.anchor_texts = []
-		self.links_and_texts=[]
-		self.h_tags = None
-		self.h_tag_texts = []
-		self.bag_of_words = []
+		self.parsed_page_content=None
 		self.internal_links=[]
-		self.external_links=[]
 		self.include_url=['','.']
-		self.seperated_links={}
-=======
->>>>>>> 5eb897aece89f73a86700357346b704d64d1f583
-
+		self.links_and_anchor_texts=[]
+		self.All_Internal_links={}
 	def get_page_content(self):
 		try:
 			# Some sites do not allow requests without headers
@@ -40,13 +28,13 @@ class PageAnalyser():
 			else:
 				page_object = requests.get("https://{}".format(self.url), headers=headers)
 			page_content = page_object.content
+			self.parsed_page_content = bs(page_content, "html.parser")
 		except requests.exceptions.ConnectionError:
 			print("Error: Something is wrong with the url")
-		parsed_page_content = bs(page_content, "html.parser")
-		return parsed_page_content
+		
 
-	def get_links_and_anchor_texts(self, page_content):
-		anchor_tags = page_content.find_all("a")
+	def get_links_and_anchor_texts(self):
+		anchor_tags = self.parsed_page_content.find_all("a")
 		links = []
 		anchor_text = []
 		for anchor_tag in anchor_tags:
@@ -57,126 +45,47 @@ class PageAnalyser():
 			except KeyError:
 				links.append("")
 			anchor_text.append(anchor_tag.text.strip())
-		links_and_anchor_texts = list(zip(links, anchor_text))
-		return links_and_anchor_texts
+		self.links_and_anchor_texts = list(zip(links, anchor_text))
+		#return links_and_anchor_texts
 
-<<<<<<< HEAD
-	def parse_page(self):
-		if self.page_content is None:
-			print("Error: Page content has not been loaded")
-		else:
-			self.parsed_page_content = bs(self.page_content, "html.parser")
+	def one_level_url(self,link):
+		scheme=urlsplit(link).scheme
+		netloc= urlsplit(link).netloc
+		if((scheme =='')| (netloc=='')):
+			return link
+		base_url='://'.join([urlsplit(link).scheme,urlsplit(link).netloc])
+		path=urlsplit(link).path
+		path=path.split('/')
+		one_level= [base_url,path[1]]
+		return '/'.join(one_level)
 
-	def find_anchor_tags(self):
-		if self.parsed_page_content is None:
-			print("Error: Page content has not been parsed")
-		else:
-			self.anchor_tags = self.parsed_page_content.find_all("a")
-
-	def find_href_values(self):
-		if self.anchor_tags is None:
-			print("Error: There are no anchor tags")
-		else:
-			for anchor_tag in self.anchor_tags:
-				# Some anchor tags do not have href attributes
-				# Use an empty string as the href value of such tags
-				try:
-					self.href_values.append(anchor_tag["href"])
-				except KeyError:
-					self.href_values.append("")
-
-	def find_anchor_texts(self):
-		if self.anchor_tags is None:
-			print("Error: There are no anchor tags")
-		else:
-			for anchor_tag in self.anchor_tags:
-				self.anchor_texts.append(anchor_tag.text.strip())
-
-	def get_links_and_texts(self):
-		self.links_and_texts = list(zip(self.href_values, self.anchor_texts))
-		return links_and_texts
-
-	def find_h_tags(self):
-		if self.parsed_page_content is None:
-			print("Error: Page content has not been parsed")
-		else:
-			self.h_tags = self.parsed_page_content.find_all("h1")
-			self.h_tags += self.parsed_page_content.find_all("h2")
-			self.h_tags += self.parsed_page_content.find_all("h3")
-
-	def find_h_tag_texts(self):
-		if self.h_tags is None:
-			print("Error: There are no h tags")
-		else:
-			for h_tag in self.h_tags:
-				self.h_tag_texts.append(h_tag.text.strip())
-
-	def clean_text(self, text):
-		ignored_words = ['a', "the", "is"]
-		words = re.sub("[^\w]", " ",  text).split()
-		cleaned_text = [word.lower() for word in words if word not in ignored_words]
-		return cleaned_text
-
-	def tokenize(self, texts):
-		words = []
-		for text in texts:
-		    cleaned_text = self.clean_text(text)
-		    words.extend(cleaned_text)   
-		words = sorted(list(set(words)))
-		return words
-
-	def get_bag_of_words(self):
-		texts = self.h_tag_texts
-		vocab = self.tokenize(self.h_tag_texts)
-		for text in texts:
-			cleaned_texts = self.clean_text(text)
-			bag_vector = numpy.zeros(len(vocab))
-			for cleaned_text in cleaned_texts:
-				for index, word in enumerate(vocab):
-					if word == cleaned_text: 
-						bag_vector[index] += 1
-			self.bag_of_words.append((text, numpy.array(bag_vector)))
-		return self.bag_of_words
-	def seperate_links(self,url):
-		All_links=self.links_and_texts
-		includeurl=urlparse(url).netloc
+	def get_internal_links(self):
+		All_links=self.links_and_anchor_texts
+		includeurl=urlparse(self.url).netloc
 		if(All_links==[]):
-			return 'Empty string was passed'
+			return 'Empty link was passed'
 		else:
 			for link in All_links:
 				link_netloc=urlparse(link[0]).netloc
 				if (link_netloc == includeurl)| (link_netloc in self.include_url):
-					self.internal_links.append(link)
+					new_link=self.one_level_url(link[0])
+					self.internal_links.append((new_link,link[1]))
 				else:
-					self.external_links.append(link)
-			self.seperated_links={'internal_links':self.internal_links,'external_links':self.external_links}
-		return self.seperated_links
-	  
-=======
-  
->>>>>>> 5eb897aece89f73a86700357346b704d64d1f583
+					pass
+			self.All_Internal_links={'internal_links':self.internal_links}
+		
+
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-l", "--link", help='add a url to test', type=str)
+	parser.add_argument("-l", '--link', help='add a url to test', type=str)
 	args = parser.parse_args()
 	pageanalyser = PageAnalyser(args.link)
-<<<<<<< HEAD
-	pageanalyser.download_page()
-	pageanalyser.parse_page()
-	pageanalyser.find_anchor_tags()
-	pageanalyser.find_href_values()
-	pageanalyser.find_anchor_texts()
-	pageanalyser.get_links_and_texts()
-	pageanalyser.seperate_links(args.link)
-	pageanalyser.find_h_tags()
-	pageanalyser.find_h_tag_texts()
-	pageanalyser.find_bag_of_words
-=======
-	page_content = pageanalyser.get_page_content()
-	links_and_anchor_texts = pageanalyser.get_links_and_anchor_texts(page_content)
-	print(links_and_anchor_texts)
+	pageanalyser.get_page_content()
+	pageanalyser.get_links_and_anchor_texts()
+	pageanalyser.get_internal_links()
+	print(pageanalyser.All_Internal_links)
 
->>>>>>> 5eb897aece89f73a86700357346b704d64d1f583
+
 	
 if __name__ == '__main__':
 	main()
