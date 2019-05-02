@@ -11,6 +11,7 @@ from urllib.parse import urlparse
 class PageAnalyser():
 	def __init__(self, url):
 		self.url = url
+<<<<<<< HEAD
 		self.page_content = None
 		self.parsed_page_content = None
 		self.anchor_tags = None
@@ -24,8 +25,10 @@ class PageAnalyser():
 		self.external_links=[]
 		self.include_url=['','.']
 		self.seperated_links={}
+=======
+>>>>>>> 5eb897aece89f73a86700357346b704d64d1f583
 
-	def download_page(self):
+	def get_page_content(self):
 		try:
 			# Some sites do not allow requests without headers
 			# The headers dictionary deals with this
@@ -36,10 +39,28 @@ class PageAnalyser():
 				page_object = requests.get(self.url, headers=headers)
 			else:
 				page_object = requests.get("https://{}".format(self.url), headers=headers)
-			self.page_content = page_object.content
+			page_content = page_object.content
 		except requests.exceptions.ConnectionError:
 			print("Error: Something is wrong with the url")
+		parsed_page_content = bs(page_content, "html.parser")
+		return parsed_page_content
 
+	def get_links_and_anchor_texts(self, page_content):
+		anchor_tags = page_content.find_all("a")
+		links = []
+		anchor_text = []
+		for anchor_tag in anchor_tags:
+			# Some anchor tags do not have href attributes
+			# Use an empty string as the href value of such tags
+			try:
+				links.append(anchor_tag["href"])
+			except KeyError:
+				links.append("")
+			anchor_text.append(anchor_tag.text.strip())
+		links_and_anchor_texts = list(zip(links, anchor_text))
+		return links_and_anchor_texts
+
+<<<<<<< HEAD
 	def parse_page(self):
 		if self.page_content is None:
 			print("Error: Page content has not been loaded")
@@ -131,11 +152,15 @@ class PageAnalyser():
 			self.seperated_links={'internal_links':self.internal_links,'external_links':self.external_links}
 		return self.seperated_links
 	  
+=======
+  
+>>>>>>> 5eb897aece89f73a86700357346b704d64d1f583
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-l", "--link", help='add a url to test', type=str)
 	args = parser.parse_args()
 	pageanalyser = PageAnalyser(args.link)
+<<<<<<< HEAD
 	pageanalyser.download_page()
 	pageanalyser.parse_page()
 	pageanalyser.find_anchor_tags()
@@ -146,6 +171,12 @@ def main():
 	pageanalyser.find_h_tags()
 	pageanalyser.find_h_tag_texts()
 	pageanalyser.find_bag_of_words
+=======
+	page_content = pageanalyser.get_page_content()
+	links_and_anchor_texts = pageanalyser.get_links_and_anchor_texts(page_content)
+	print(links_and_anchor_texts)
+
+>>>>>>> 5eb897aece89f73a86700357346b704d64d1f583
 	
 if __name__ == '__main__':
 	main()
