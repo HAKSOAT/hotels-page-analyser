@@ -4,6 +4,8 @@ from newspaper import Article
 import numpy
 import re
 import requests
+import pandas as pd
+from urllib.parse import urlparse
 
 
 class PageAnalyser():
@@ -14,9 +16,14 @@ class PageAnalyser():
 		self.anchor_tags = None
 		self.href_values = []
 		self.anchor_texts = []
+		self.links_and_texts=[]
 		self.h_tags = None
 		self.h_tag_texts = []
 		self.bag_of_words = []
+		self.internal_links=[]
+		self.external_links=[]
+		self.include_url=['','.']
+		self.seperated_links={}
 
 	def download_page(self):
 		try:
@@ -65,7 +72,7 @@ class PageAnalyser():
 				self.anchor_texts.append(anchor_tag.text.strip())
 
 	def get_links_and_texts(self):
-		links_and_texts = list(zip(self.href_values, self.anchor_texts))
+		self.links_and_texts = list(zip(self.href_values, self.anchor_texts))
 		return links_and_texts
 
 	def find_h_tags(self):
@@ -109,7 +116,21 @@ class PageAnalyser():
 						bag_vector[index] += 1
 			self.bag_of_words.append((text, numpy.array(bag_vector)))
 		return self.bag_of_words
-  
+	def seperate_links(self,url):
+		All_links=self.links_and_texts
+		includeurl=urlparse(url).netloc
+		if(All_links==[]):
+			return 'Empty string was passed'
+		else:
+			for link in All_links:
+				link_netloc=urlparse(link[0]).netloc
+				if (link_netloc == includeurl)| (link_netloc in self.include_url):
+					self.internal_links.append(link)
+				else:
+					self.external_links.append(link)
+			self.seperated_links={'internal_links':self.internal_links,'external_links':self.external_links}
+		return self.seperated_links
+	  
 def main():
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-l", "--link", help='add a url to test', type=str)
@@ -120,6 +141,8 @@ def main():
 	pageanalyser.find_anchor_tags()
 	pageanalyser.find_href_values()
 	pageanalyser.find_anchor_texts()
+	pageanalyser.get_links_and_texts()
+	pageanalyser.seperate_links(args.link)
 	pageanalyser.find_h_tags()
 	pageanalyser.find_h_tag_texts()
 	pageanalyser.find_bag_of_words
