@@ -42,7 +42,6 @@ class PageAnalyser():
 		links_and_anchor_texts = list(zip(links, anchor_text))
 		return links_and_anchor_texts
 
-
   
 def main():
 	parser = argparse.ArgumentParser()
@@ -52,6 +51,7 @@ def main():
 	page_content = pageanalyser.get_page_content()
 	links_and_anchor_texts = pageanalyser.get_links_and_anchor_texts(page_content)
 	print(links_and_anchor_texts)
+
 	
 if __name__ == '__main__':
 	main()
