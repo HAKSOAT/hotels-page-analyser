@@ -8,7 +8,7 @@ from urllib.parse import urlparse
 from urllib.parse import urlsplit
 
 
-class PageAnalyser():
+class PageAnalyser():   #coded by haks
 	def __init__(self, url):
 		# requests.get only works with urls with http or https
 		# so the url needs to have http or https in it
@@ -18,7 +18,7 @@ class PageAnalyser():
 			self.url = "http://{}".format(url)
 		self.data_structure = []
 
-	def get_page_content(self, url=None):
+	def get_page_content(self, url=None): #downloads the content of a url passed into it . Coded by @Edeediong
 		if url is None:
 			url = self.url 
 		try:
@@ -33,7 +33,7 @@ class PageAnalyser():
 		parsed_page_content = bs(page_content, "html.parser")
 		return parsed_page_content
 
-	def get_all_links_and_anchor_texts(self, page_content):
+	def get_all_links_and_anchor_texts(self, page_content): #fetches both external and internal links  as well as the anchor . Coded by @Munirat
 		anchor_tags = page_content.find_all("a")
 		links = []
 		anchor_text = []
@@ -48,7 +48,7 @@ class PageAnalyser():
 		links_and_anchor_texts = list(zip(links, anchor_text))
 		return links_and_anchor_texts
 
-	def get_link_one_level_down(self, link):
+	def get_link_one_level_down(self, link): #get's 1st level links eg hotels.ng/about  . Coded by @Munirat
 		scheme = urlsplit(link).scheme
 		netloc = urlsplit(link).netloc
 		if((scheme == '') | (netloc == '')):
@@ -59,7 +59,7 @@ class PageAnalyser():
 		one_level = [base_url, path[1]]
 		return '/'.join(one_level)
 
-	def get_internal_links_and_anchor_texts(self, links_and_anchor_texts):
+	def get_internal_links_and_anchor_texts(self, links_and_anchor_texts): #gets the internal links and the anchor texts . Coded by @Jesse Amamgbu
 		link_text_mapping = {}
 		domain_name = urlparse(self.url).netloc
 		for link, anchor_text in links_and_anchor_texts:
@@ -69,7 +69,7 @@ class PageAnalyser():
 				link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
 		return link_text_mapping
 
-	def get_meta_data(self, link_text_mapping):
+	def get_meta_data(self, link_text_mapping): #loops through each internal link to return the h1, keyword, sumarry and short url. Coded by @Nnamdi
 		meta_data = []
 		for link, anchor_text in link_text_mapping.items():
 			# requests.get only works with urls with http or https
@@ -92,7 +92,7 @@ class PageAnalyser():
 				pass
 		return meta_data
 
-	def get_data_structure(self, meta_data):
+	def get_data_structure(self, meta_data): #gets the output to  display in a nested dictionary that will be easily transformed to Json. Coded by @Haks
 		domain_name = urlparse(self.url).netloc
 		data_structure = {domain_name:{}}
 		for page_data in meta_data:
@@ -115,7 +115,7 @@ class PageAnalyser():
 		return data_structure
 
 
-def main():
+def main():  #this calls the class and the methods. Coded by @Haks
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-l", "--link", help='add a url to test', type=str)
 	args = parser.parse_args()
