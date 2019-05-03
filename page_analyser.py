@@ -1,40 +1,40 @@
 import argparse
 from bs4 import BeautifulSoup as bs
+import newspaper
 import numpy
 import re
 import requests
-import pandas as pd
 from urllib.parse import urlparse
 from urllib.parse import urlsplit
 
 
 class PageAnalyser():
 	def __init__(self, url):
-		self.url = url
-		self.parsed_page_content=None
-		self.internal_links=[]
-		self.include_url=['','.']
-		self.links_and_anchor_texts=[]
-		self.All_Internal_links={}
-	def get_page_content(self):
+		# requests.get only works with urls with http or https
+		# so the url needs to have http or https in it
+		if re.match(r"(https://|http://).+", url):
+			self.url = url
+		else:
+			self.url = "http://{}".format(url)
+		self.data_structure = []
+
+	def get_page_content(self, url=None):
+		if url is None:
+			url = self.url 
 		try:
 			# Some sites do not allow requests without headers
 			# The headers dictionary deals with this
 			headers = {'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_11_5) \
-			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}
-			# requests.get only works with urls with http or https
-			if re.match(r"(https://|http://).+", self.url):
-				page_object = requests.get(self.url, headers=headers)
-			else:
-				page_object = requests.get("https://{}".format(self.url), headers=headers)
+			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}			
+			page_object = requests.get(url, headers=headers)
 			page_content = page_object.content
-			self.parsed_page_content = bs(page_content, "html.parser")
 		except requests.exceptions.ConnectionError:
 			print("Error: Something is wrong with the url")
-		
+		parsed_page_content = bs(page_content, "html.parser")
+		return parsed_page_content
 
-	def get_links_and_anchor_texts(self):
-		anchor_tags = self.parsed_page_content.find_all("a")
+	def get_all_links_and_anchor_texts(self, page_content):
+		anchor_tags = page_content.find_all("a")
 		links = []
 		anchor_text = []
 		for anchor_tag in anchor_tags:
@@ -45,47 +45,87 @@ class PageAnalyser():
 			except KeyError:
 				links.append("")
 			anchor_text.append(anchor_tag.text.strip())
-		self.links_and_anchor_texts = list(zip(links, anchor_text))
-		#return links_and_anchor_texts
+		links_and_anchor_texts = list(zip(links, anchor_text))
+		return links_and_anchor_texts
 
-	def get_url_one_level_down(self,link):
-		scheme=urlsplit(link).scheme
-		netloc= urlsplit(link).netloc
-		if((scheme =='')| (netloc=='')):
+	def get_link_one_level_down(self, link):
+		scheme = urlsplit(link).scheme
+		netloc = urlsplit(link).netloc
+		if((scheme == '') | (netloc == '')):
 			return link
 		base_url='://'.join([urlsplit(link).scheme,urlsplit(link).netloc])
 		path=urlsplit(link).path
 		path=path.split('/')
-		one_level= [base_url,path[1]]
+		one_level = [base_url, path[1]]
 		return '/'.join(one_level)
 
-	def get_internal_links(self):
-		All_links=self.links_and_anchor_texts
-		includeurl=urlparse(self.url).netloc
-		if(All_links==[]):
-			return 'Empty link was passed'
-		else:
-			for link in All_links:
-				link_netloc=urlparse(link[0]).netloc
-				if (link_netloc == includeurl)| (link_netloc in self.include_url):
-					new_link=self.get_url_one_level_down(link[0])
-					self.internal_links.append((new_link,link[1]))
-				else:
-					pass
-			self.All_Internal_links={'internal_links':self.internal_links}
-		
+	def get_internal_links_and_anchor_texts(self, links_and_anchor_texts):
+		link_text_mapping = {}
+		domain_name = urlparse(self.url).netloc
+		for link, anchor_text in links_and_anchor_texts:
+			link_domain_name = urlparse(link).netloc
+			if (link_domain_name == domain_name):
+				link_one_level_deep = self.get_link_one_level_down(link)
+				link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+		return link_text_mapping
+
+	def get_meta_data(self, link_text_mapping):
+		meta_data = []
+		for link, anchor_text in link_text_mapping.items():
+			# requests.get only works with urls with http or https
+			# so the url needs to have http or https in it
+			if not re.match(r"(https://|http://).+", link):
+				link = "http://{}".format(link)
+			try:
+				article = newspaper.Article(link)
+				article.download()
+				content = article.html
+				article.parse()
+				article.nlp()
+				keywords = article.keywords
+				summary = article.summary
+				data = self.get_page_content(link)
+				h1=[i.get_text() for i  in data.find_all("h1")]
+				short_url = link.split("/")[-1]
+				meta_data.append((link, h1, keywords, short_url, anchor_text, summary))
+			except newspaper.article.ArticleException:
+				pass
+		return meta_data
+
+	def get_data_structure(self, meta_data):
+		domain_name = urlparse(self.url).netloc
+		data_structure = {domain_name:{}}
+		for page_data in meta_data:
+			url = page_data[0]
+			h1 = page_data[1]
+			keywords = page_data[2]
+			short_url = page_data[3] if len(page_data[3]) > 0 else "home"
+			anchor_tags = page_data[4]
+			summary = page_data[5]
+			page_structure = {
+			"url": url,
+			"h1": h1,
+			"keywords": keywords,
+			"short_url": short_url,
+			"anchor_tags": anchor_tags,
+			"summary": summary
+			}
+			data_structure[domain_name].setdefault(short_url,[]).append(page_structure)
+		self.data_structure.append(data_structure)
+		return data_structure
+
 
 def main():
 	parser = argparse.ArgumentParser()
-	parser.add_argument("-l", '--link', help='add a url to test', type=str)
+	parser.add_argument("-l", "--link", help='add a url to test', type=str)
 	args = parser.parse_args()
 	pageanalyser = PageAnalyser(args.link)
-	pageanalyser.get_page_content()
-	pageanalyser.get_links_and_anchor_texts()
-	pageanalyser.get_internal_links()
-	print(pageanalyser.All_Internal_links)
-
-
+	page_content = pageanalyser.get_page_content()
+	links_and_anchor_texts = pageanalyser.get_all_links_and_anchor_texts(page_content)
+	internal_links_and_anchor_texts = pageanalyser.get_internal_links_and_anchor_texts(links_and_anchor_texts)
+	meta_data = pageanalyser.get_meta_data(internal_links_and_anchor_texts)
+	data_structure = pageanalyser.get_data_structure(meta_data)
+	print(data_structure)
 	
 if __name__ == '__main__':
 	main()
