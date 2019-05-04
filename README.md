@@ -25,4 +25,4 @@ Example:
 python page_analyser.py -l "http://example.com/"
 ```
 
-`http://example.com` is a sample url and should be replaced with the URL you want to work with.
+`http://example.com` is a sample URL and should be replaced with the URL you want to work with.
