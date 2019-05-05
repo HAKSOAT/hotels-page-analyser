@@ -64,9 +64,12 @@ class PageAnalyser():   #coded by haks
 		domain_name = urlparse(self.url).netloc
 		for link, anchor_text in links_and_anchor_texts:
 			link_domain_name = urlparse(link).netloc
-			if (link_domain_name == domain_name):
-				link_one_level_deep = self.get_link_one_level_down(link)
-				link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+			try:
+				if (link_domain_name == domain_name):
+					link_one_level_deep = self.get_link_one_level_down(link)
+					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+			except IndexError:
+				continue
 		return link_text_mapping
 
 	def get_meta_data(self, link_text_mapping): #loops through each internal link to return the h1, keyword, sumarry and short url. Coded by @Nnamdi
