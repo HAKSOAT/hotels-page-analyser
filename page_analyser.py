@@ -1,5 +1,6 @@
 import argparse
 from bs4 import BeautifulSoup as bs
+from enum import Enum
 import newspaper
 import numpy
 import re
@@ -9,6 +10,8 @@ from urllib.parse import urlsplit
 
 
 class PageAnalyser():   #coded by haks
+	data_structure = []
+
 	def __init__(self, url):
 		# requests.get only works with urls with http or https
 		# so the url needs to have http or https in it
@@ -16,7 +19,6 @@ class PageAnalyser():   #coded by haks
 			self.url = url
 		else:
 			self.url = "http://{}".format(url)
-		self.data_structure = []
 
 	def get_page_content(self, url=None): #downloads the content of a url passed into it . Coded by @Edeediong
 		if url is None:
@@ -114,9 +116,9 @@ class PageAnalyser():   #coded by haks
 			"summary": summary
 			}
 			data_structure[domain_name].setdefault(short_url,[]).append(page_structure)
-		self.data_structure.append(data_structure)
+		PageAnalyser.data_structure.append(data_structure)
 		return data_structure
-
+		
 
 def main():  #this calls the class and the methods. Coded by @Haks
 	parser = argparse.ArgumentParser()
@@ -128,7 +130,7 @@ def main():  #this calls the class and the methods. Coded by @Haks
 	internal_links_and_anchor_texts = pageanalyser.get_internal_links_and_anchor_texts(links_and_anchor_texts)
 	meta_data = pageanalyser.get_meta_data(internal_links_and_anchor_texts)
 	data_structure = pageanalyser.get_data_structure(meta_data)
-	print(data_structure)
+	enum(PRIVACY=["privacy", "privacy-policy"])
 	
 if __name__ == '__main__':
 	main()
