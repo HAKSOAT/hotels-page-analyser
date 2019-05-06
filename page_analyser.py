@@ -13,9 +13,9 @@ class PageAnalyser():   #coded by haks
 		# requests.get only works with urls with http or https
 		# so the url needs to have http or https in it
 		if re.match(r"(https://|http://).+", url):
-			self.url = url
+			self.url = url.replace("www.", "")
 		else:
-			self.url = "http://{}".format(url)
+			self.url = "http://{}".format(url).replace("www.", "")
 
 	def get_page_content(self, url=None): #downloads the content of a url passed into it . Coded by @Edeediong
 		if url is None:
@@ -28,10 +28,9 @@ class PageAnalyser():   #coded by haks
 			page_object = requests.get(url, headers=headers)
 			page_content = page_object.content
 			parsed_page_content = bs(page_content, "html.parser")
-			parsed_page_content = bs(page_content, "html.parser")
 			return parsed_page_content
 		except (requests.exceptions.ConnectionError, requests.exceptions.InvalidURL):
-			print("Error: Something is wrong with the url")
+			print("Error: Something is wrong with the url {}".format(url))
 
 
 	def get_all_links_and_anchor_texts(self, page_content): #fetches both external and internal links  as well as the anchor . Coded by @Munirat
@@ -42,7 +41,7 @@ class PageAnalyser():   #coded by haks
 			# Some anchor tags do not have href attributes
 			# Use an empty string as the href value of such tags
 			try:
-				links.append(anchor_tag["href"])
+				links.append(anchor_tag["href"].replace("www.", ""))
 			except KeyError:
 				links.append("")
 			anchor_text.append(anchor_tag.text.strip())
@@ -77,6 +76,10 @@ class PageAnalyser():   #coded by haks
 					link_one_level_deep = self.get_link_one_level_down(full_link)
 					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
 
+				elif (domain_name in link_domain_name):
+					link_one_level_deep = self.get_link_one_level_down(link)
+					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+
 			except IndexError:
 				continue
 		return link_text_mapping
@@ -87,7 +90,7 @@ class PageAnalyser():   #coded by haks
 			# requests.get only works with urls with http or https
 			# so the url needs to have http or https in it
 			if not re.match(r"(https://|http://).+", link):
-				link = "http://{}".format(link)
+				link = "http://{}".format(link).replace("www.", "")
 			try:
 				article = newspaper.Article("")
 				page_content = self.get_page_content(link)
@@ -99,7 +102,7 @@ class PageAnalyser():   #coded by haks
 				h1=[h1_tag.get_text() for h1_tag in page_content.find_all("h1")]
 				short_url = link.split("/")[-1]
 				meta_data.append((link, h1, keywords, short_url, anchor_text, summary))
-			except newspaper.article.ArticleException:
+			except (newspaper.article.ArticleException, AttributeError):
 				continue
 
 		return meta_data
