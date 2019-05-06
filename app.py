@@ -1,5 +1,6 @@
 import argparse
 import csv
+import os
 from page_analyser import PageAnalyser
 from page_classifier import PageClassifier
 
@@ -17,7 +18,7 @@ def main():  #this calls the class and the methods. Coded by @Haks
 		with open(file_path) as f:
 			rows = csv.reader(f)
 			links = [row for row in rows]
-		for link in links[:1]:
+		for link in links[:20]:
 			pageanalyser = PageAnalyser(link[0])
 			page_content = pageanalyser.get_page_content()
 			if page_content is None:
@@ -40,26 +41,31 @@ def main():  #this calls the class and the methods. Coded by @Haks
 		link = args.predictprivacy
 		pageanalyser = PageAnalyser(link)
 		page_content = pageanalyser.get_page_content()
-		
 		if page_content is None:
 			quit()
 		
+		links_and_anchor_texts = pageanalyser.get_all_links_and_anchor_texts(page_content)
+		internal_links_and_anchor_texts = pageanalyser.get_internal_links_and_anchor_texts(links_and_anchor_texts)
+		print("Getting metadata, this may take a while.")
+		meta_data = pageanalyser.get_meta_data(internal_links_and_anchor_texts)
+		pageanalyser.get_data_structure(meta_data)
+		data_structure = PageAnalyser.data_structure
+		pageclassifier = PageClassifier(data_structure)
+		corpus, _, urls = pageclassifier.get_corpus_labels_urls("privacy")
+		
 		try:
-			links_and_anchor_texts = pageanalyser.get_all_links_and_anchor_texts(page_content)
-			internal_links_and_anchor_texts = pageanalyser.get_internal_links_and_anchor_texts(links_and_anchor_texts)
-			print("Getting metadata, this may take a while.")
-			meta_data = pageanalyser.get_meta_data(internal_links_and_anchor_texts)
-			pageanalyser.get_data_structure(meta_data)
-			data_structure = PageAnalyser.data_structure
-			pageclassifier = PageClassifier(data_structure)
-			corpus, _, urls = pageclassifier.get_corpus_labels_urls("privacy")
 			predictions = pageclassifier.predict_privacy_pages(corpus)
 			
-			for prediction, url in zip(predictions, urls):
-				print(prediction, url)
+			if 1 in predictions:
+				for prediction, url in zip(predictions, urls):
+					if prediction == 1:
+						print("{} ===>>> Privacy Page".format(url))
+			else:
+				print("No Privacy Page")
 
-		except Exception as e:
-			print("Sorry something broke")
+		except ValueError:
+			print("Sadly, the url doesn't like to be scraped")
+
 		
 	
 if __name__ == '__main__':
