@@ -30,10 +30,12 @@ class PageAnalyser():   #coded by haks
 			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}			
 			page_object = requests.get(url, headers=headers)
 			page_content = page_object.content
-		except requests.exceptions.ConnectionError:
+			parsed_page_content = bs(page_content, "html.parser")
+			parsed_page_content = bs(page_content, "html.parser")
+			return parsed_page_content
+		except (requests.exceptions.ConnectionError, requests.exceptions.InvalidURL):
 			print("Error: Something is wrong with the url")
-		parsed_page_content = bs(page_content, "html.parser")
-		return parsed_page_content
+
 
 	def get_all_links_and_anchor_texts(self, page_content): #fetches both external and internal links  as well as the anchor . Coded by @Munirat
 		anchor_tags = page_content.find_all("a")
