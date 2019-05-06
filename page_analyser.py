@@ -66,12 +66,19 @@ class PageAnalyser():   #coded by haks
 	def get_internal_links_and_anchor_texts(self, links_and_anchor_texts): #gets the internal links and the anchor texts . Coded by @Jesse Amamgbu
 		link_text_mapping = {}
 		domain_name = urlparse(self.url).netloc
+
 		for link, anchor_text in links_and_anchor_texts:
 			link_domain_name = urlparse(link).netloc
+			
 			try:
 				if (link_domain_name == domain_name):
 					link_one_level_deep = self.get_link_one_level_down(link)
 					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+				
+				elif re.match(r"^(/.*)", link):
+					full_link = "{}{}".format(domain_name, link)                                       link_one_level_deep = self.get_link_one_level_down(full_link)
+					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+
 			except IndexError:
 				continue
 		return link_text_mapping
