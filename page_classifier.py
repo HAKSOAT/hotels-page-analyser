@@ -16,14 +16,14 @@ class PageClassifier():
 		for mapping in self.data_structure:
 			for key, site in mapping.items():
 				for key, page in site.items():
-				page = page[0]
-				corpus.append("{} {} {}".format(page["short_url"], page["keywords"],
-												page["anchor_tags"], page["h1"]))
-				if keyword in page["short_url"]:
-				       labels.append(1)
-				else:
-				       labels.append(0)
-				urls.append(page["url"])
+					page = page[0]
+					corpus.append("{} {} {}".format(page["short_url"], page["keywords"],
+													page["anchor_tags"], page["h1"]))
+					if keyword in page["short_url"]:
+					    labels.append(1)
+					else:
+					    labels.append(0)
+					urls.append(page["url"])
 
 		return (corpus, labels, urls)
 
@@ -36,12 +36,12 @@ class PageClassifier():
 		models_directory = os.path.join(current_directory, "models")
 
 		if not os.path.exists(models_directory):
-    		os.makedirs(models_directory)
+			os.makedirs(models_directory)
 
 		file_path = os.path.join(models_directory, "privacy_pages_model.pkl")
 		joblib.dump(classifier, file_path)
 
-	def predict_model_privacy_pages(self, corpus):
+	def predict_privacy_pages(self, corpus):
 		current_directory = os.path.dirname(os.path.abspath(__file__))
 		models_directory = os.path.join(current_directory, "models")
 		file_path = os.path.join(models_directory, "privacy_pages_model.pkl")
