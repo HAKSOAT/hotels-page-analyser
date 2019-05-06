@@ -128,4 +128,3 @@ class PageAnalyser():   #coded by haks
 			data_structure[domain_name].setdefault(short_url,[]).append(page_structure)
 		PageAnalyser.data_structure.append(data_structure)
 		return data_structure
-		
