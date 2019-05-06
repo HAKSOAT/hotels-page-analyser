@@ -1,7 +1,5 @@
-import argparse
 from bs4 import BeautifulSoup as bs
 import newspaper
-import numpy
 import re
 import requests
 from urllib.parse import urlparse
@@ -103,7 +101,8 @@ class PageAnalyser():   #coded by haks
 				short_url = link.split("/")[-1]
 				meta_data.append((link, h1, keywords, short_url, anchor_text, summary))
 			except newspaper.article.ArticleException:
-				pass
+				continue
+
 		return meta_data
 
 	def get_data_structure(self, meta_data): #gets the output to  display in a nested dictionary that will be easily transformed to Json. Coded by @Haks
@@ -128,18 +127,3 @@ class PageAnalyser():   #coded by haks
 		PageAnalyser.data_structure.append(data_structure)
 		return data_structure
 		
-
-def main():  #this calls the class and the methods. Coded by @Haks
-	parser = argparse.ArgumentParser()
-	parser.add_argument("-l", "--link", help='add a url to test', type=str)
-	args = parser.parse_args()
-	pageanalyser = PageAnalyser(args.link)
-	page_content = pageanalyser.get_page_content()
-	links_and_anchor_texts = pageanalyser.get_all_links_and_anchor_texts(page_content)
-	internal_links_and_anchor_texts = pageanalyser.get_internal_links_and_anchor_texts(links_and_anchor_texts)
-	meta_data = pageanalyser.get_meta_data(internal_links_and_anchor_texts)
-	data_structure = pageanalyser.get_data_structure(meta_data)
-	enum(PRIVACY=["privacy", "privacy-policy"])
-	
-if __name__ == '__main__':
-	main()
