@@ -1,7 +1,5 @@
-import argparse
 from bs4 import BeautifulSoup as bs
 import newspaper
-import numpy
 import re
 import requests
 from urllib.parse import urlparse
@@ -9,6 +7,8 @@ from urllib.parse import urlsplit
 
 
 class PageAnalyser():   #coded by haks
+	data_structure = []
+
 	def __init__(self, url):
 		# requests.get only works with urls with http or https
 		# so the url needs to have http or https in it
@@ -16,7 +16,6 @@ class PageAnalyser():   #coded by haks
 			self.url = url
 		else:
 			self.url = "http://{}".format(url)
-		self.data_structure = []
 
 	def get_page_content(self, url=None): #downloads the content of a url passed into it . Coded by @Edeediong
 		if url is None:
@@ -28,10 +27,12 @@ class PageAnalyser():   #coded by haks
 			AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 Safari/537.36'}			
 			page_object = requests.get(url, headers=headers)
 			page_content = page_object.content
-		except requests.exceptions.ConnectionError:
+			parsed_page_content = bs(page_content, "html.parser")
+			parsed_page_content = bs(page_content, "html.parser")
+			return parsed_page_content
+		except (requests.exceptions.ConnectionError, requests.exceptions.InvalidURL):
 			print("Error: Something is wrong with the url")
-		parsed_page_content = bs(page_content, "html.parser")
-		return parsed_page_content
+
 
 	def get_all_links_and_anchor_texts(self, page_content): #fetches both external and internal links  as well as the anchor . Coded by @Munirat
 		anchor_tags = page_content.find_all("a")
@@ -62,11 +63,22 @@ class PageAnalyser():   #coded by haks
 	def get_internal_links_and_anchor_texts(self, links_and_anchor_texts): #gets the internal links and the anchor texts . Coded by @Jesse Amamgbu
 		link_text_mapping = {}
 		domain_name = urlparse(self.url).netloc
+
 		for link, anchor_text in links_and_anchor_texts:
 			link_domain_name = urlparse(link).netloc
-			if (link_domain_name == domain_name):
-				link_one_level_deep = self.get_link_one_level_down(link)
-				link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+
+			try:
+				if (link_domain_name == domain_name):
+					link_one_level_deep = self.get_link_one_level_down(link)
+					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+				
+				elif re.match(r"^(/.*)", link):
+					full_link = "{}{}".format(domain_name, link)                                       
+					link_one_level_deep = self.get_link_one_level_down(full_link)
+					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
+
+			except IndexError:
+				continue
 		return link_text_mapping
 
 	def get_meta_data(self, link_text_mapping): #loops through each internal link to return the h1, keyword, sumarry and short url. Coded by @Nnamdi
@@ -89,7 +101,8 @@ class PageAnalyser():   #coded by haks
 				short_url = link.split("/")[-1]
 				meta_data.append((link, h1, keywords, short_url, anchor_text, summary))
 			except newspaper.article.ArticleException:
-				pass
+				continue
+
 		return meta_data
 
 	def get_data_structure(self, meta_data): #gets the output to  display in a nested dictionary that will be easily transformed to Json. Coded by @Haks
@@ -111,21 +124,6 @@ class PageAnalyser():   #coded by haks
 			"summary": summary
 			}
 			data_structure[domain_name].setdefault(short_url,[]).append(page_structure)
-		self.data_structure.append(data_structure)
+		PageAnalyser.data_structure.append(data_structure)
 		return data_structure
-
-
-def main():  #this calls the class and the methods. Coded by @Haks
-	parser = argparse.ArgumentParser()
-	parser.add_argument("-l", "--link", help='add a url to test', type=str)
-	args = parser.parse_args()
-	pageanalyser = PageAnalyser(args.link)
-	page_content = pageanalyser.get_page_content()
-	links_and_anchor_texts = pageanalyser.get_all_links_and_anchor_texts(page_content)
-	internal_links_and_anchor_texts = pageanalyser.get_internal_links_and_anchor_texts(links_and_anchor_texts)
-	meta_data = pageanalyser.get_meta_data(internal_links_and_anchor_texts)
-	data_structure = pageanalyser.get_data_structure(meta_data)
-	print(data_structure)
-	
-if __name__ == '__main__':
-	main()
+		
