@@ -2,8 +2,9 @@ import os
 from sklearn import model_selection, svm
 from sklearn.externals import joblib
 from sklearn.feature_extraction.text import CountVectorizer
-from sklearn.metrics import accuracy_score
+from sklearn.naive_bayes import MultinomialNB
 from sklearn.pipeline import Pipeline
+
 
 class PageClassifier():
 	def __init__(self, data_structure):
@@ -27,25 +28,44 @@ class PageClassifier():
 
 		return (corpus, labels, urls)
 
-	def train_privacy_pages(self, corpus, labels):
-		vectorizer = CountVectorizer()
-		SVM = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
-		classifier = Pipeline([('vectorizer', vectorizer), ('svm', SVM)])
-		classifier.fit(corpus, labels)
+	def save_model(self, classifier, file_name):
 		current_directory = os.path.dirname(os.path.abspath(__file__))
 		models_directory = os.path.join(current_directory, "models")
 
 		if not os.path.exists(models_directory):
 			os.makedirs(models_directory)
 
-		file_path = os.path.join(models_directory, "privacy_pages_model.pkl")
+		file_path = os.path.join(models_directory, file_name)
 		joblib.dump(classifier, file_path)
 
-	def predict_privacy_pages(self, corpus):
+	def load_model(self, file_name):
 		current_directory = os.path.dirname(os.path.abspath(__file__))
 		models_directory = os.path.join(current_directory, "models")
-		file_path = os.path.join(models_directory, "privacy_pages_model.pkl")
+		file_path = os.path.join(models_directory, file_name)
 		classifier = joblib.load(file_path)
+		return classifier
+
+	def train_privacy_pages(self, corpus, labels):
+		vectorizer = CountVectorizer()
+		SVM = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
+		classifier = Pipeline([('vectorizer', vectorizer), ('svm', SVM)])
+		classifier.fit(corpus, labels)
+		self.save_model(classifier, "privacy_pages_model.pkl")
+
+	def predict_privacy_pages(self, corpus):
+		classifier = self.load_model("privacy_pages_model.pkl")
+		predictions = classifier.predict(corpus)
+		return predictions
+
+	def train_about_pages(self, corpus, labels):
+		vectorizer= CountVectorizer()		
+		multinomial_nb = MultinomialNB(alpha=0.1)
+		classifier = Pipeline([('CountVectorizer', vectorizer), ('naivebayes', multinomial_nb)])
+		classifier.fit(corpus, labels)
+		self.save_model(classifier, "about_pages_model.pkl")
+
+	def predict_about_pages(self, corpus):
+		classifier = self.load_model("about_pages_model.pkl")
 		predictions = classifier.predict(corpus)
 		return predictions
 
