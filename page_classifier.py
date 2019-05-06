@@ -1,3 +1,10 @@
+import os
+from sklearn import model_selection, svm
+from sklearn.externals import joblib
+from sklearn.feature_extraction.text import CountVectorizer
+from sklearn.metrics import accuracy_score
+from sklearn.pipeline import Pipeline
+
 class PageClassifier():
 	def __init__(self, data_structure):
 		self.data_structure = data_structure
@@ -20,3 +27,16 @@ class PageClassifier():
 
 		return (corpus, labels, urls)
 
+	def train_privacy_pages(self, corpus, labels):
+		vectorizer = CountVectorizer()
+		SVM = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
+		classifier = Pipeline([('vectorizer', vectorizer), ('svm', SVM)])
+		classifier.fit(corpus, labels)
+		current_directory = os.path.dirname(os.path.abspath(__file__))
+		models_directory = os.path.join(current_directory, "models")
+
+		if not os.path.exists(models_directory):
+    		os.makedirs(models_directory)
+
+		file_path = os.path.join(models_directory, "privacy_pages_model.pkl")
+		joblib.dump(classifier, file_path)
