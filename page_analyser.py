@@ -75,7 +75,8 @@ class PageAnalyser():   #coded by haks
 					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
 				
 				elif re.match(r"^(/.*)", link):
-					full_link = "{}{}".format(domain_name, link)                                       link_one_level_deep = self.get_link_one_level_down(full_link)
+					full_link = "{}{}".format(domain_name, link)                                       
+					link_one_level_deep = self.get_link_one_level_down(full_link)
 					link_text_mapping.setdefault(link_one_level_deep,[]).append(anchor_text)
 
 			except IndexError:
