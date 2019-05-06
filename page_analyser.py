@@ -89,15 +89,14 @@ class PageAnalyser():   #coded by haks
 			if not re.match(r"(https://|http://).+", link):
 				link = "http://{}".format(link)
 			try:
-				article = newspaper.Article(link)
-				article.download()
-				content = article.html
+				article = newspaper.Article("")
+				page_content = self.get_page_content(link)
+				article.set_html(str(page_content))
 				article.parse()
 				article.nlp()
 				keywords = article.keywords
 				summary = article.summary
-				data = self.get_page_content(link)
-				h1=[i.get_text() for i  in data.find_all("h1")]
+				h1=[h1_tag.get_text() for h1_tag in page_content.find_all("h1")]
 				short_url = link.split("/")[-1]
 				meta_data.append((link, h1, keywords, short_url, anchor_text, summary))
 			except newspaper.article.ArticleException:
