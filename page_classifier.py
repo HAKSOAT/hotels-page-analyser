@@ -40,3 +40,12 @@ class PageClassifier():
 
 		file_path = os.path.join(models_directory, "privacy_pages_model.pkl")
 		joblib.dump(classifier, file_path)
+
+	def predict_model_privacy_pages(self, corpus):
+		current_directory = os.path.dirname(os.path.abspath(__file__))
+		models_directory = os.path.join(current_directory, "models")
+		file_path = os.path.join(models_directory, "privacy_pages_model.pkl")
+		classifier = joblib.load(file_path)
+		predictions = classifier.predict(corpus)
+		return predictions
+
