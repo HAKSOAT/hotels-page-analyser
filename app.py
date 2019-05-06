@@ -11,7 +11,10 @@ def main():  #this calls the class and the methods. Coded by @Haks
 	args = parser.parse_args()
 
 	if args.train == "privacy":
-		with open("sites.csv") as f:
+		current_directory = os.path.dirname(os.path.abspath(__file__))
+		dataset_directory = os.path.join(current_directory, "dataset")
+		file_path = os.path.join(dataset_directory, "sites.csv")
+		with open(file_path) as f:
 			rows = csv.reader(f)
 			links = [row for row in rows]
 		for link in links[:1]:
