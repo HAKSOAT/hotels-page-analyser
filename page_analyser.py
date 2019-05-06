@@ -1,6 +1,5 @@
 import argparse
 from bs4 import BeautifulSoup as bs
-from enum import Enum
 import newspaper
 import numpy
 import re
@@ -69,7 +68,7 @@ class PageAnalyser():   #coded by haks
 
 		for link, anchor_text in links_and_anchor_texts:
 			link_domain_name = urlparse(link).netloc
-			
+
 			try:
 				if (link_domain_name == domain_name):
 					link_one_level_deep = self.get_link_one_level_down(link)
