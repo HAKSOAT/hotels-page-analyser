@@ -5,15 +5,15 @@
 
 ### Directory Tree
 
-├── app.py
-├── dataset
-│   └── sites.csv
-├── models
-│   ├── about_pages_model.pkl
-│   └── privacy_pages_model.pkl
-├── page_analyser.py
-├── page_classifier.py
-├── README.md
+├── app.py  
+├── dataset  
+│   └── sites.csv  
+├── models  
+│   ├── about_pages_model.pkl  
+│   └── privacy_pages_model.pkl  
+├── page_analyser.py  
+├── page_classifier.py  
+├── README.md  
 └── requirements.txt
 
 ## Getting Started
@@ -60,7 +60,7 @@ Models are available to be used, hence you do not need to train a model before r
 
 If you intend training your own models, you can either retrain using `sites.csv` file, and also choose how many links you intend training the model on.  
   
-**Fetching links and training models takes time; so do this only if you understand what you are doing.**
+_Fetching links and training models takes time; so do this only if you understand what you are doing._
 
 To train the models based on the `sites.csv` file, run the following:
 
@@ -70,7 +70,7 @@ python app.py --train sites.csv --number 20
 
 The command above will train the models using the first 20 links from the dataset.
 
-**Every train attempt overwrites the models previously trained**
+_Every train attempt overwrites the models previously trained._
 
 ## Credits
 
