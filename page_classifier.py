@@ -69,3 +69,15 @@ class PageClassifier():
 		predictions = classifier.predict(corpus)
 		return predictions
 
+	def train_gallery_pages(self, corpus, labels):
+		vectorizer = CountVectorizer()
+		SVM = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
+		classifier = Pipeline([('vectorizer', vectorizer), ('svm', SVM)])
+		classifier.fit(corpus, labels)
+		self.save_model(classifier, "privacy_pages_model.pkl")
+
+	def predict_gallery_pages(self, corpus):
+		classifier = self.load_model("gallery_pages_model.pkl")
+		predictions = classifier.predict(corpus)
+		return predictions
+
