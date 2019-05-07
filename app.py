@@ -8,19 +8,26 @@ def main():  #this calls the class and the methods. Coded by @Haks
 	parser = argparse.ArgumentParser()
 	parser.add_argument("-t", "--train", help="Use to train models", type=str)
 	parser.add_argument("-p", "--predict", help="Use to predict pages", type=str)
+	parser.add_argument("-n", "--number", help="Use to choose the number of sites to train with", type=int)
 	args = parser.parse_args()
+	if (args.train and not args.number):
+		parser.error("To train the model, you need to pass in the number of links to be used")
 
 	# Runs the code here when user wants to train the models
-	if args.train == "":
+	if args.train:
 		# Create a directory for the dataset to keep the csv files
 		current_directory = os.path.dirname(os.path.abspath(__file__))
 		dataset_directory = os.path.join(current_directory, "dataset")
-		file_path = os.path.join(dataset_directory, "sites.csv")
-		with open(file_path) as f:
-			rows = csv.reader(f)
-			links = [row for row in rows]
+		file_path = os.path.join(dataset_directory, args.train)
+		try:
+			with open(file_path) as f:
+				rows = csv.reader(f)
+				links = [row for row in rows]
+		except FileNotFoundError:
+			parser.error("File does not exist!!!")
 		# Get a data structure from the links stated in the dataset
-		for link in links[:20]:
+		number_of_links = args.number + 1
+		for link in links[:number_of_links]:
 			pageanalyser = PageAnalyser(link[0])
 			page_content = pageanalyser.get_page_content()
 			# Deals with links that do not return anything
@@ -42,6 +49,7 @@ def main():  #this calls the class and the methods. Coded by @Haks
 		about_corpus, about_labels, _ = pageclassifier.get_corpus_labels_urls("about")
 		pageclassifier.train_privacy_pages(privacy_corpus, privacy_labels)
 		pageclassifier.train_about_pages(about_corpus, about_labels)
+		print("Training Complete")
 
 	# Runs the code here when user wants to predict pages based on the trained models
 	elif args.predict:
