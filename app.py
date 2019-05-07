@@ -18,7 +18,7 @@ def main():  #this calls the class and the methods. Coded by @Haks
 		with open(file_path) as f:
 			rows = csv.reader(f)
 			links = [row for row in rows]
-		for link in links[:20]:
+		for link in links[:50]:
 			pageanalyser = PageAnalyser(link[0])
 			page_content = pageanalyser.get_page_content()
 			if page_content is None:
