@@ -1,23 +1,24 @@
 import argparse
 import csv
+import os
 from page_analyser import PageAnalyser
 from page_classifier import PageClassifier
 
 def main():  #this calls the class and the methods. Coded by @Haks
 	parser = argparse.ArgumentParser()
-	train_help_message = "Use to train models, models current available for training are:\n 'privacy'"
+	train_help_message = "Use to train models, models current available for training are:\n 'contact'"
 	parser.add_argument("-t", "--train", help=train_help_message, type=str)
-	parser.add_argument("-ppp", "--predictprivacy", help="Use to predict privacy pages", type=str)
+	parser.add_argument("-ppp", "--predictcontact", help="Use to predict contact pages", type=str)
 	args = parser.parse_args()
 
-	if args.train == "privacy":
+	if args.train == "contact":
 		current_directory = os.path.dirname(os.path.abspath(__file__))
 		dataset_directory = os.path.join(current_directory, "dataset")
 		file_path = os.path.join(dataset_directory, "sites.csv")
 		with open(file_path) as f:
 			rows = csv.reader(f)
 			links = [row for row in rows]
-		for link in links[:1]:
+		for link in links[:20]:
 			pageanalyser = PageAnalyser(link[0])
 			page_content = pageanalyser.get_page_content()
 			if page_content is None:
@@ -33,11 +34,11 @@ def main():  #this calls the class and the methods. Coded by @Haks
 
 		data_structure = PageAnalyser.data_structure
 		pageclassifier = PageClassifier(data_structure)
-		corpus, labels, urls = pageclassifier.get_corpus_labels_urls("privacy")
-		pageclassifier.train_privacy_pages(corpus, labels)
+		corpus, labels, urls = pageclassifier.get_corpus_labels_urls("contact")
+		pageclassifier.train_contact_pages(corpus, labels)
 
-	elif args.predictprivacy:
-		link = args.predictprivacy
+	elif args.predictcontact:
+		link = args.predictcontact
 		pageanalyser = PageAnalyser(link)
 		page_content = pageanalyser.get_page_content()
 		
@@ -52,8 +53,8 @@ def main():  #this calls the class and the methods. Coded by @Haks
 			pageanalyser.get_data_structure(meta_data)
 			data_structure = PageAnalyser.data_structure
 			pageclassifier = PageClassifier(data_structure)
-			corpus, _, urls = pageclassifier.get_corpus_labels_urls("privacy")
-			predictions = pageclassifier.predict_privacy_pages(corpus)
+			corpus, _, urls = pageclassifier.get_corpus_labels_urls("contact")
+			predictions = pageclassifier.predict_contact_pages(corpus)
 			
 			for prediction, url in zip(predictions, urls):
 				print(prediction, url)
