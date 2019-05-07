@@ -76,6 +76,17 @@ class PageClassifier():
 		predictions = classifier.predict(corpus)
 		return predictions
 
+<<<<<<< HEAD
+	def train_gallery_pages(self, corpus, labels):
+		vectorizer = CountVectorizer()
+		SVM = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
+		classifier = Pipeline([('vectorizer', vectorizer), ('svm', SVM)])
+		classifier.fit(corpus, labels)
+		self.save_model(classifier, "privacy_pages_model.pkl")
+
+	def predict_gallery_pages(self, corpus):
+		classifier = self.load_model("gallery_pages_model.pkl")
+=======
 	def train_rooms_pages(self, corpus, labels):
 		try:
 			vectorizer= CountVectorizer()		
@@ -88,6 +99,7 @@ class PageClassifier():
 
 	def predict_rooms_pages(self, corpus):
 		classifier = self.load_model("rooms_pages_model.pkl")
+>>>>>>> a7e02cbbb7effdaab6f5be44bbdaeffa5dfb9733
 		predictions = classifier.predict(corpus)
 		return predictions
 

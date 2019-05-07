@@ -49,10 +49,17 @@ def main():  #this calls the class and the methods. Coded by @Haks
 		pageclassifier = PageClassifier(data_structure)
 		privacy_corpus, privacy_labels, _ = pageclassifier.get_corpus_labels_urls("privacy")
 		about_corpus, about_labels, _ = pageclassifier.get_corpus_labels_urls("about")
+
+		gallery_corpus, gallery_labels, _ = pageclassifier.get_corpus_labels_urls("#gallery")
+		pageclassifier.train_privacy_pages(privacy_corpus, privacy_labels)
+		pageclassifier.train_about_pages(about_corpus, about_labels)
+		pageclassifier.train_gallery_pages(gallery_corpus, gallery_labels)
+
 		rooms_corpus, rooms_labels, _ = pageclassifier.get_corpus_labels_urls("rooms")
 		pageclassifier.train_privacy_pages(privacy_corpus, privacy_labels)
 		pageclassifier.train_about_pages(about_corpus, about_labels)
 		pageclassifier.train_rooms_pages(rooms_corpus,rooms_labels)
+
 		print("Training Complete")
 
 	# Runs the code here when user wants to predict pages based on the trained models
@@ -81,7 +88,11 @@ def main():  #this calls the class and the methods. Coded by @Haks
 		try:
 			privacy_predictions = pageclassifier.predict_privacy_pages(corpus)
 			about_predictions = pageclassifier.predict_about_pages(corpus)
+
+			gallery_predictions = pageclassifier.predict_gallery_pages(corpus)
+
 			rooms_predictions = pageclassifier.predict_rooms_pages(corpus)
+
 
 			if 1 in about_predictions:
 				for prediction, url in zip(about_predictions, urls):
@@ -96,6 +107,12 @@ def main():  #this calls the class and the methods. Coded by @Haks
 						print("{} ===>>> Privacy Page".format(url))
 			else:
 				print("No Privacy Page")
+			if 1 in gallery_predictions:
+				for prediction, url in zip(gallery_predictions, urls):
+					if prediction == 1:
+						print("{} ===>>> Gallery Page".format(url))
+			else:
+				print("No Gallery Page")
 
 			if 1 in rooms_predictions:
 				for prediction, url in zip(rooms_predictions, urls):
