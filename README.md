@@ -10,7 +10,8 @@
 │   └── sites.csv  
 ├── models  
 │   ├── about_pages_model.pkl  
-│   └── privacy_pages_model.pkl  
+│   ├── privacy_pages_model.pkl  
+│   └── rooms_pages_model.pkl  
 ├── page_analyser.py  
 ├── page_classifier.py  
 ├── README.md  
