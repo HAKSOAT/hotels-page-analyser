@@ -76,15 +76,30 @@ class PageClassifier():
         predictions = classifier.predict(corpus)
         return predictions
 
-    def train_rooms_pages(self, corpus, labels):
-        try:
-            vectorizer= CountVectorizer()        
-            logreg = LogisticRegression()
-            classifier = Pipeline([('CountVectorizer', vectorizer), ('Logistic Regression', logreg)])
-            classifier.fit(corpus, labels)
-            self.save_model(classifier, "rooms_pages_model.pkl")
-        except ValueError:
-            print("There is no rooms page in the dataset >>> Rooms model, not trained")
+	def train_gallery_pages(self, corpus, labels):
+		try:
+			vectorizer = CountVectorizer()
+			SVM = svm.SVC(C=1.0, kernel='linear', degree=3, gamma='auto')
+			classifier = Pipeline([('vectorizer', vectorizer), ('svm', SVM)])
+			classifier.fit(corpus, labels)
+			self.save_model(classifier, "gallery_pages_model.pkl")
+		except ValueError:
+			print("There is no gallery page in the dataset >>> Gallery model, not trained")
+
+	def predict_gallery_pages(self, corpus):
+		classifier = self.load_model("gallery_pages_model.pkl")
+		predictions = classifier.predict(corpus)
+		return predictions
+
+	def train_rooms_pages(self, corpus, labels):
+		try:
+			vectorizer= CountVectorizer()		
+			logreg = LogisticRegression()
+			classifier = Pipeline([('CountVectorizer', vectorizer), ('Logistic Regression', logreg)])
+			classifier.fit(corpus, labels)
+			self.save_model(classifier, "rooms_pages_model.pkl")
+		except ValueError:
+			print("There is no rooms page in the dataset >>> Rooms model, not trained")
 
     def predict_rooms_pages(self, corpus):
         classifier = self.load_model("rooms_pages_model.pkl")
