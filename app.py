@@ -11,16 +11,16 @@ def main():  #this calls the class and the methods. Coded by @Haks
 	args = parser.parse_args()
 
 	# Runs the code here when user wants to train the models
-	if args.train == "":
+	if args.train:
 		# Create a directory for the dataset to keep the csv files
 		current_directory = os.path.dirname(os.path.abspath(__file__))
 		dataset_directory = os.path.join(current_directory, "dataset")
-		file_path = os.path.join(dataset_directory, "sites.csv")
+		file_path = os.path.join(dataset_directory, args.train)
 		with open(file_path) as f:
 			rows = csv.reader(f)
 			links = [row for row in rows]
 		# Get a data structure from the links stated in the dataset
-		for link in links[:20]:
+		for link in links[:50]:
 			pageanalyser = PageAnalyser(link[0])
 			page_content = pageanalyser.get_page_content()
 			# Deals with links that do not return anything
@@ -42,6 +42,7 @@ def main():  #this calls the class and the methods. Coded by @Haks
 		about_corpus, about_labels, _ = pageclassifier.get_corpus_labels_urls("about")
 		pageclassifier.train_privacy_pages(privacy_corpus, privacy_labels)
 		pageclassifier.train_about_pages(about_corpus, about_labels)
+		print("Training Complete")
 
 	# Runs the code here when user wants to predict pages based on the trained models
 	elif args.predict:
