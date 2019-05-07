@@ -10,6 +10,8 @@ def main():  #this calls the class and the methods. Coded by @Haks
 	parser.add_argument("-p", "--predict", help="Use to predict pages", type=str)
 	parser.add_argument("-n", "--number", help="Use to choose the number of sites to train with", type=int)
 	args = parser.parse_args()
+
+	# Raise an error if user doesn't input number of pages to train with
 	if (args.train and not args.number):
 		parser.error("To train the model, you need to pass in the number of links to be used")
 
